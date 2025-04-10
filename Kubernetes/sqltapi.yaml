@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqltapi
+  labels:
+    app: sqltapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqltapi
+  template:
+    metadata:
+      labels:
+        app: sqltapi
+    spec:
+      containers:
+      - name: sqltapi
+        image: dinedash-sqlt:latest 
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /query
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /query
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "300m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqltapi
+spec:
+  selector:
+    app: sqltapi
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP

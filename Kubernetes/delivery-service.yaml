@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-service-deployment
+  labels:
+    app: delivery-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: delivery-service
+  template:
+    metadata:
+      labels:
+        app: delivery-service
+    spec:
+      containers:
+      - name: delivery-service
+        image: dinedash-delivery:latest   
+        ports:
+        - containerPort: 8003
+        readinessProbe:
+          httpGet:
+            path: /docs
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /docs
+            port: 8003
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: delivery-service
+spec:
+  selector:
+    app: delivery-service
+  ports:
+  - protocol: TCP
+    port: 8003
+    targetPort: 8003
