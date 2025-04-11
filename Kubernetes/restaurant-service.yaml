@@ -1,51 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: restaurant-service-deployment
+  name: restaurant-container-deployment
   labels:
-    app: restaurant-service
+    app: restaurant-container
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: restaurant-service
+      app: restaurant-container
   template:
     metadata:
       labels:
-        app: restaurant-service
+        app: restaurant-container
     spec:
       containers:
-      - name: restaurant-service
+      - name: restaurant-container
         image: dinedash-restaurant:latest   
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8001
         readinessProbe:
-          httpGet:
-            path: /docs
+          tcpSocket:
             port: 8001
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
-          httpGet:
-            path: /docs
+          tcpSocket:
             port: 8001
-          initialDelaySeconds: 15
+          initialDelaySeconds: 10
           periodSeconds: 20
         resources:
           requests:
             cpu: "100m"
             memory: "128Mi"
           limits:
-            cpu: "250m"
+            cpu: "300m"
             memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: restaurant-service
+  name: restaurant-container
+  labels:
+    app: restaurant-container                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 spec:
   selector:
-    app: restaurant-service
+    app: restaurant-container
   ports:
   - protocol: TCP
     port: 8001

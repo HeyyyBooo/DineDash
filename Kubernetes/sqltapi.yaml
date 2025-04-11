@@ -1,33 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sqltapi
+  name: sqlt-container
   labels:
-    app: sqltapi
+    app: sqlt-container
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sqltapi
+      app: sqlt-container
   template:
     metadata:
       labels:
-        app: sqltapi
+        app: sqlt-container
     spec:
       containers:
-      - name: sqltapi
-        image: dinedash-sqlt:latest 
+      - name: sqlt-container
+        image: dinedash-sqlt:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
         readinessProbe:
-          httpGet:
-            path: /query
+          tcpSocket:
             port: 8000
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
-          httpGet:
-            path: /query
+          tcpSocket:
             port: 8000
           initialDelaySeconds: 10
           periodSeconds: 20
@@ -42,10 +41,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: sqltapi
+  name: sqlt-container
 spec:
   selector:
-    app: sqltapi
+    app: sqlt-container
   ports:
   - protocol: TCP
     port: 8000
