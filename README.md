@@ -21,6 +21,13 @@ Below is an example directory structure for the project:
 DINEDASH/
 ├── docker-compose.yml           # Docker Compose orchestration file
 ├── README.md                    # This file
+├── Kubernetes/                  # For Kubernetes 
+│   ├── gateway.yaml               
+│   ├── sqltapi.yaml
+│   ├── auth-service.yaml               
+│   ├── delivery-service.yaml
+│   ├── restaurant-service.yaml              
+│   └── order-service.yaml                                             
 ├── gateway/                     # Node.js gateway project
 │   ├── Dockerfile               # Dockerfile for gateway
 │   ├── server.js                # Gateway server code
@@ -35,7 +42,7 @@ DINEDASH/
 │           └── style.css        # CSS styles
 ├── sqlt/
 │   ├── Dockerfile               # Dockerfile for sqlite container
-│   ├── main.py                  #fastAPI file for sql
+│   └── main.py                  #fastAPI file for sql
 └── services/                    # Backend microservices
     ├── auth/                    # Authentication service
     │   ├── Dockerfile           # Dockerfile for auth service
@@ -175,6 +182,104 @@ docker-compose down -v
 | Delivery Service    | 8003          | 8003 (internal)|
 | Auth Service        | 8004          | 8004 (internal)|
 
+
+---
+
+## ☸️ Deploying with Kubernetes (Minikube)
+
+This project also supports deployment on Kubernetes using Minikube.
+
+### 1️⃣ Start Minikube
+
+```bash
+minikube start
+```
+
+If you're building local images:
+
+```bash
+minikube load image <images>
+# repeat for all services...
+```
+
+### 2️⃣ Apply Kubernetes Manifests
+everything is depending on sqltapi so applying in priority  order.
+
+```bash
+kubectl apply -f sqltapi.yaml
+
+
+kubectl apply -f restaurant-service.yaml
+kubectl apply -f order-service.yaml
+kubectl apply -f delivery-service.yaml
+kubectl apply -f auth-service.yaml
+
+kubectl apply -f gateway.yaml
+```
+
+
+This will deploy:
+
+- `sqlt-container`
+- `auth-container`
+- `restaurant-container`
+- `order-container`
+- `delivery-container`
+- `gateway`
+
+### 3️⃣ Access Gateway
+
+To access the Node.js gateway service:
+
+```bash
+minikube service gateway
+```
+
+This will open the gateway in your browser via a tunnel.
+
+---
+---
+
+## 🧠 Health Probes
+
+Each FastAPI service uses TCP socket-based **readiness** and **liveness** probes on their respective ports.
+
+Example for restaurant service:
+
+```yaml
+readinessProbe:
+  tcpSocket:
+    port: 8001
+livenessProbe:
+  tcpSocket:
+    port: 8001
+```
+
+This ensures your pods are restarted only when actually unresponsive.
+
+---
+
+## 📌 Tips for Minikube Users
+
+- To prevent image not found errors, use:
+
+```bash
+eval $(minikube docker-env)
+```
+
+- Always run the tunnel command when accessing services with `ClusterIP`:
+
+```bash
+minikube service <service-name>
+```
+
+- To stop the cluster:
+
+```bash
+minikube stop
+```
+
+This **pauses but does not delete** your pods.
 
 ---
 
