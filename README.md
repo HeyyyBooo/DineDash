@@ -8,7 +8,7 @@ DineDash is a full-stack microservices-based food ordering and delivery system. 
   - **restaurant** – Restaurant and menu management
   - **order** – Order placement and management
   - **delivery** – Delivery tracking
-  - **sqlt** – Databse
+  - **sqlt** – Database
 
 All services are containerized with Docker and orchestrated using Docker Compose.
 
@@ -90,7 +90,7 @@ This command will:
 - Create a shared Docker network (`foodnet`) for inter-container communication.
 - Start all the services:
   - **Gateway** on port `8080`
-  - **sqlite databse** on port `8000`
+  - **sqlite database** on port `8000`
   - **Restaurant Service** on port `8001`
   - **Order Service** on port `8002`
   - **Delivery Service** on port `8003`
